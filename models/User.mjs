@@ -2,11 +2,18 @@ import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema(
   {
-    content: String,
-    rating: Number,
+    content: { type: String, required: true },
+    rating: { type: Number, required: true },
     sentinental_analysis: {
-      type: Array, // can hold [score, label] or more structured data
-      default: [],
+      type: [Number], // Array of numbers
+      default: [0, 0, 0], // [good, bad, neutral]
+      validate: {
+        validator: function (arr) {
+          return arr.length === 3;
+        },
+        message:
+          "sentinental_analysis must be an array of 3 numbers [good, bad, neutral]",
+      },
     },
   },
   { timestamps: true }

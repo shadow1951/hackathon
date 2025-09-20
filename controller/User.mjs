@@ -69,7 +69,8 @@ async function fetchRedditSolution(query) {
 // -----------------------------
 export const addReview = async (req, res, next) => {
   try {
-    const { username, message, rating, sentinental_analysis } = req.body;
+    const { username, message, rating, sentinental_analysis, isSPam } =
+      req.body;
 
     if (!username || !message || rating == null) {
       return res
@@ -90,13 +91,18 @@ export const addReview = async (req, res, next) => {
     let user = await User.findOne({ username });
     if (!user) user = new User({ username });
 
+    // Ensure sentinental_analysis is an array of 3 numbers
+    const analysis =
+      Array.isArray(sentinental_analysis) && sentinental_analysis.length === 3
+        ? sentinental_analysis
+        : [0, 0, 0]; // default [good, bad, neutral]
+
     // Append review
     const newReview = {
       content: message,
       rating,
-      sentinental_analysis: Array.isArray(sentinental_analysis)
-        ? sentinental_analysis
-        : [],
+      sentinental_analysis: analysis,
+      isSPan: isSPam,
     };
     user.reviews.push(newReview);
 
@@ -143,13 +149,18 @@ export const addMultipleReviews = async (req, res, next) => {
           typeof r.message === "string" &&
           typeof r.rating === "number"
       )
-      .map((r) => ({
-        content: r.message,
-        rating: r.rating,
-        sentinental_analysis: Array.isArray(r.sentinental_analysis)
-          ? r.sentinental_analysis
-          : [],
-      }));
+      .map((r) => {
+        const analysis =
+          Array.isArray(r.sentinental_analysis) &&
+          r.sentinental_analysis.length === 3
+            ? r.sentinental_analysis
+            : [0, 0, 0]; // default [good, bad, neutral]
+        return {
+          content: r.message,
+          rating: r.rating,
+          sentinental_analysis: analysis,
+        };
+      });
 
     if (validReviews.length === 0) {
       return res.status(400).json({ error: "No valid reviews provided" });
