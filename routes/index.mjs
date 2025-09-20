@@ -5,6 +5,7 @@ import {
   getBadReviews,
   getGoodReviews,
   getNeutralReviews,
+  getStatisticalAnalysis,
 } from "../controller/review.mjs";
 const router = express.Router();
 
@@ -13,11 +14,12 @@ router.get("/scrap", fetchRedditReviewViaJson);
 
 // Define other routes as needed
 router.post("/addReview", addReview);
-router.post("/addMultipleReview",addMultipleReviews)
+router.post("/addMultipleReview", addMultipleReviews);
 router.get("/getGoodReviews", getGoodReviews);
 router.get("/good/:username", getGoodReviews);
 router.get("/bad/:username", getBadReviews);
 router.get("/neutral/:username", getNeutralReviews);
+router.get("/getStats", getStatisticalAnalysis);
 
 // Export the router
 export default router;
