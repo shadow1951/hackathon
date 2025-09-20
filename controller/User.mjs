@@ -128,52 +128,45 @@ export const addReview = async (req, res, next) => {
 // -----------------------------
 export const addMultipleReviews = async (req, res, next) => {
   try {
-    const { username, reviews } = req.body;
+    const reviewsArray = req.body; // expect the entire array in body
 
-    if (!username || !Array.isArray(reviews) || reviews.length === 0) {
+    if (!Array.isArray(reviewsArray) || reviewsArray.length === 0) {
       return res.status(400).json({
-        error: "username and reviews array (non-empty) are required",
+        error: "Request body must be a non-empty array of reviews",
       });
     }
 
-    // Find or create user
-    let user = await User.findOne({ username });
-    if (!user) user = new User({ username });
+    const results = [];
 
-    // Validate each review
-    const validReviews = reviews
-      .filter(
-        (r) =>
-          r.message &&
-          r.rating != null &&
-          typeof r.message === "string" &&
-          typeof r.rating === "number"
-      )
-      .map((r) => {
-        const analysis =
-          Array.isArray(r.sentinental_analysis) &&
-          r.sentinental_analysis.length === 3
-            ? r.sentinental_analysis
-            : [0, 0, 0]; // default [good, bad, neutral]
-        return {
-          content: r.message,
-          rating: r.rating,
-          sentinental_analysis: analysis,
-        };
+    for (const r of reviewsArray) {
+      if (!r.username || !r.message || r.rating == null) continue;
+
+      // Find or create user
+      let user = await User.findOne({ username: r.username });
+      if (!user) user = new User({ username: r.username });
+
+      // Ensure sentinental_analysis has 3 numbers
+      const analysis =
+        Array.isArray(r.sentinental_analysis) &&
+        r.sentinental_analysis.length === 3
+          ? r.sentinental_analysis
+          : [0, 0, 0];
+
+      // Append review
+      user.reviews.push({
+        content: r.message,
+        rating: r.rating,
+        sentinental_analysis: analysis,
       });
 
-    if (validReviews.length === 0) {
-      return res.status(400).json({ error: "No valid reviews provided" });
+      await user.save();
+
+      results.push({ username: r.username, message: r.message });
     }
-
-    // Append to existing reviews
-    user.reviews.push(...validReviews);
-
-    await user.save();
 
     res.status(201).json({
-      message: `${validReviews.length} reviews added successfully`,
-      user,
+      message: `${results.length} reviews added successfully`,
+      addedReviews: results,
     });
   } catch (err) {
     next(err);

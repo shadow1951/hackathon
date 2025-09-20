@@ -133,11 +133,12 @@ function standardDeviation(values) {
 // -----------------------------
 export const getStatisticalAnalysis = async (req, res, next) => {
   try {
-    const { username } = req.params;
-    const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    // Fetch all users
+    const users = await User.find({});
+    if (!users.length) return res.status(404).json({ error: "No users found" });
 
-    const reviews = user.reviews;
+    // Flatten all reviews
+    const reviews = users.flatMap((u) => u.reviews);
 
     if (!reviews.length) {
       return res.status(200).json({ message: "No reviews found", data: {} });
@@ -148,9 +149,9 @@ export const getStatisticalAnalysis = async (req, res, next) => {
     const minRating = Math.min(...ratings);
     const maxRating = Math.max(...ratings);
     const avgRating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-    const medRating = median(ratings);
-    const modeRating = mode(ratings);
-    const stdRating = standardDeviation(ratings);
+    const medRating = median(ratings); // Implement a median function
+    const modeRating = mode(ratings); // Implement a mode function
+    const stdRating = standardDeviation(ratings); // Implement std function
 
     // Sentinental analysis totals
     const totalSentiment = reviews.reduce(
