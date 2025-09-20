@@ -1,17 +1,28 @@
 import User from "../models/User.mjs";
 
+import User from "../models/User.mjs";
+
+// -----------------------------
+// Get Good Reviews for ALL users
+// -----------------------------
 export const getGoodReviews = async (req, res, next) => {
   try {
-    const { username } = req.params;
+    const users = await User.find({});
+    const goodReviews = [];
 
-    const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const goodReviews = user.reviews.filter(
-      (r) =>
-        r.sentinental_analysis[0] > r.sentinental_analysis[1] &&
-        r.sentinental_analysis[0] > r.sentinental_analysis[2]
-    );
+    users.forEach((user) => {
+      user.reviews.forEach((r) => {
+        if (
+          r.sentinental_analysis[0] > r.sentinental_analysis[1] &&
+          r.sentinental_analysis[0] > r.sentinental_analysis[2]
+        ) {
+          goodReviews.push({
+            username: user.username,
+            review: r,
+          });
+        }
+      });
+    });
 
     res.status(200).json({
       message: "Good reviews fetched successfully",
@@ -22,18 +33,27 @@ export const getGoodReviews = async (req, res, next) => {
   }
 };
 
+// -----------------------------
+// Get Bad Reviews for ALL users
+// -----------------------------
 export const getBadReviews = async (req, res, next) => {
   try {
-    const { username } = req.params;
+    const users = await User.find({});
+    const badReviews = [];
 
-    const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const badReviews = user.reviews.filter(
-      (r) =>
-        r.sentinental_analysis[1] > r.sentinental_analysis[0] &&
-        r.sentinental_analysis[1] > r.sentinental_analysis[2]
-    );
+    users.forEach((user) => {
+      user.reviews.forEach((r) => {
+        if (
+          r.sentinental_analysis[1] > r.sentinental_analysis[0] &&
+          r.sentinental_analysis[1] > r.sentinental_analysis[2]
+        ) {
+          badReviews.push({
+            username: user.username,
+            review: r,
+          });
+        }
+      });
+    });
 
     res.status(200).json({
       message: "Bad reviews fetched successfully",
@@ -44,18 +64,27 @@ export const getBadReviews = async (req, res, next) => {
   }
 };
 
+// -----------------------------
+// Get Neutral Reviews for ALL users
+// -----------------------------
 export const getNeutralReviews = async (req, res, next) => {
   try {
-    const { username } = req.params;
+    const users = await User.find({});
+    const neutralReviews = [];
 
-    const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const neutralReviews = user.reviews.filter(
-      (r) =>
-        r.sentinental_analysis[2] > r.sentinental_analysis[0] &&
-        r.sentinental_analysis[2] > r.sentinental_analysis[1]
-    );
+    users.forEach((user) => {
+      user.reviews.forEach((r) => {
+        if (
+          r.sentinental_analysis[2] > r.sentinental_analysis[0] &&
+          r.sentinental_analysis[2] > r.sentinental_analysis[1]
+        ) {
+          neutralReviews.push({
+            username: user.username,
+            review: r,
+          });
+        }
+      });
+    });
 
     res.status(200).json({
       message: "Neutral reviews fetched successfully",
