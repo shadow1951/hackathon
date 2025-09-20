@@ -1,6 +1,6 @@
 import express from "express";
 import { fetchRedditReviewViaJson } from "../controller/Scrapper.mjs";
-import { addReview } from "../controller/User.mjs";
+import { addMultipleReviews, addReview } from "../controller/User.mjs";
 import {
   getBadReviews,
   getGoodReviews,
@@ -13,7 +13,7 @@ router.get("/scrap", fetchRedditReviewViaJson);
 
 // Define other routes as needed
 router.post("/addReview", addReview);
-
+router.post("/addMultipleReview",addMultipleReviews)
 router.get("/getGoodReviews", getGoodReviews);
 router.get("/good/:username", getGoodReviews);
 router.get("/bad/:username", getBadReviews);
