@@ -19,7 +19,7 @@ router.get("/getGoodReviews", getGoodReviews);
 router.get("/good/:username", getGoodReviews);
 router.get("/bad/:username", getBadReviews);
 router.get("/neutral/:username", getNeutralReviews);
-router.get("/getStats", getStatisticalAnalysis);
+router.get("/getStats/:username", getStatisticalAnalysis);
 
 // Export the router
 export default router;
