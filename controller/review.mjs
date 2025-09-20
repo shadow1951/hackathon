@@ -1,7 +1,5 @@
 import User from "../models/User.mjs";
 
-import User from "../models/User.mjs";
-
 // -----------------------------
 // Get Good Reviews for ALL users
 // -----------------------------
